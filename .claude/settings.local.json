@@ -5,7 +5,8 @@
       "Bash(cat:*)",
       "Bash(chmod:*)",
       "Bash(git add:*)",
-      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Add project scaffolding and design documentation\n\n- DESIGN.md: Architecture, storage decisions, implementation plan\n- CLAUDE.md: Agent instructions with reference to DESIGN.md  \n- Makefile: Build, test, lint, release commands\n- CI/CD: GitHub Actions for tests and goreleaser\n- mise.toml: Go 1.21 version management\n- Simplified README with link to DESIGN.md\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Add project scaffolding and design documentation\n\n- DESIGN.md: Architecture, storage decisions, implementation plan\n- CLAUDE.md: Agent instructions with reference to DESIGN.md  \n- Makefile: Build, test, lint, release commands\n- CI/CD: GitHub Actions for tests and goreleaser\n- mise.toml: Go 1.21 version management\n- Simplified README with link to DESIGN.md\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit:*)"
     ]
   }
 }

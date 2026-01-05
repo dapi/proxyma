@@ -1,18 +1,16 @@
-# DESIGN.md — Proxyma
+# DESIGN.ru.md — Proxyma
 
-🇷🇺 **[DESIGN.ru.md](DESIGN.ru.md)** — Russian version.
+## Мотивация
 
-## Motivation
+Существующие прокси-ротаторы (mubeng, go-proxy-rotator) не предоставляют:
+- Per-proxy метрики (success rate, latency, errors)
+- Health checks и circuit breaker
+- API для управления прокси
+- Информацию о том, какой прокси использовался
 
-Existing proxy rotators (mubeng, go-proxy-rotator) don't provide:
-- Per-proxy metrics (success rate, latency, errors)
-- Health checks and circuit breaker
-- API for proxy management
-- Information about which proxy was used
+Proxyma решает эти проблемы.
 
-Proxyma solves these problems.
-
-## Architecture
+## Архитектура
 
 ```
 ┌─────────┐     ┌──────────────────────────────────────────┐     ┌──────────────┐
@@ -36,23 +34,23 @@ Proxyma solves these problems.
                 └──────────────────────────────────────────┘
 ```
 
-## Key Decisions
+## Ключевые решения
 
 ### Storage: Config = State
 
-Unified YAML format for input and output. On startup, you can provide:
-- Minimal config (URLs only)
-- Full dump with saved state
+Единый YAML формат для входа и выхода. При старте можно подать:
+- Минимальный конфиг (только URLs)
+- Полный дамп с сохранённым состоянием
 
 ```yaml
-# Minimal input
+# Минимальный вход
 proxies:
   - url: "http://user:pass@proxy1:8080"
   - url: "http://user:pass@proxy2:8080"
 ```
 
 ```yaml
-# Full dump (GET /api/v1/config or auto-save)
+# Полный дамп (GET /api/v1/config или автосохранение)
 server:
   address: "0.0.0.0:8089"
 
@@ -63,7 +61,7 @@ proxies:
   - url: "http://user:pass@proxy1:8080"
     weight: 10                    # default: 1
     healthy: true
-    enabled: true                 # can be disabled manually
+    enabled: true                 # можно отключить вручную
     circuit: "closed"             # closed | open | half-open
     stats:
       requests: 1523
@@ -89,46 +87,46 @@ proxies:
     last_error: "connection refused"
     last_used_at: "2024-01-15T10:25:12Z"
 
-exported_at: "2024-01-15T10:30:00Z"  # informational, ignored on import
+exported_at: "2024-01-15T10:30:00Z"  # информационное, игнорируется при импорте
 ```
 
-### Parsing Logic on Startup
+### Логика парсинга при старте
 
 ```
-Read YAML:
-├── Only url present? → weight=1, healthy=true, stats=zero
-├── Has weight? → use it
-├── Has stats/healthy/circuit? → restore state
-└── exported_at? → ignore
+Читаем YAML:
+├── Есть только url? → weight=1, healthy=true, stats=zero
+├── Есть weight? → используем
+├── Есть stats/healthy/circuit? → восстанавливаем состояние
+└── exported_at? → игнорируем
 ```
 
 ### Persistence
 
-In-memory state with optional auto-save:
+In-memory state с опциональным автосохранением:
 
 ```bash
-# Without persistence (state lost on restart)
+# Без persistence (state теряется при рестарте)
 proxyma -config proxies.yaml
 
-# With auto-save every 60 sec
+# С автосохранением каждые 60 сек
 proxyma -config config.yaml -state-file /pvc/state.yaml -state-interval 60s
 
-# Restore from dump
+# Восстановление из дампа
 proxyma -config /pvc/state-dump.yaml
 ```
 
 ## REST API
 
 ```
-GET    /api/v1/proxies              # List proxies with stats
-POST   /api/v1/proxies              # Add proxy
-DELETE /api/v1/proxies/{id}         # Remove proxy
-PUT    /api/v1/proxies/{id}/enable  # Enable
-PUT    /api/v1/proxies/{id}/disable # Disable
-POST   /api/v1/proxies/{id}/reset   # Reset stats
+GET    /api/v1/proxies              # Список прокси со статистикой
+POST   /api/v1/proxies              # Добавить прокси
+DELETE /api/v1/proxies/{id}         # Удалить прокси
+PUT    /api/v1/proxies/{id}/enable  # Включить
+PUT    /api/v1/proxies/{id}/disable # Отключить
+POST   /api/v1/proxies/{id}/reset   # Сбросить статистику
 
-GET    /api/v1/config               # Full dump (YAML/JSON)
-POST   /api/v1/reload               # Reload config
+GET    /api/v1/config               # Полный дамп (YAML/JSON)
+POST   /api/v1/reload               # Перечитать конфиг
 
 GET    /health                      # Health check
 GET    /metrics                     # Prometheus metrics
@@ -156,14 +154,14 @@ proxyma_active_proxies
 proxyma_healthy_proxies
 ```
 
-## Subissues (Implementation Plan)
+## Subissues (план реализации)
 
-1. **Config Parser** — YAML with graceful defaults
-2. **Proxy Pool + State** — in-memory with sync.RWMutex
-3. **Core Proxy** — HTTP/HTTPS handler with CONNECT tunneling
+1. **Config Parser** — YAML с graceful defaults
+2. **Proxy Pool + State** — in-memory с sync.RWMutex
+3. **Core Proxy** — HTTP/HTTPS handler с CONNECT tunneling
 4. **Rotation Engine** — round-robin, random, weighted, least-latency
 5. **Health Checker** — passive + active checks
-6. **Circuit Breaker** — per-proxy isolation with cooldown
+6. **Circuit Breaker** — per-proxy изоляция с cooldown
 7. **Metrics** — Prometheus collectors
 8. **REST API** — /config, /reload, /proxies/*
-9. **State Persistence** — auto-dump to file
+9. **State Persistence** — автодамп в файл

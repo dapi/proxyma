@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Proxyma - Smart HTTP/HTTPS proxy rotator with Prometheus metrics and REST API. Written in Go.
 
-**Перед началом работы обязательно прочитай `DESIGN.md`** — там мотивация, архитектурные решения и план реализации (subissues).
+**Read `DESIGN.md` first** — motivation, architecture decisions, and implementation plan (subissues).
 
 ## Development Commands
 
@@ -69,8 +69,10 @@ internal/
 
 ## Configuration
 
-Единый YAML формат для config и state. При старте можно подать минимальный конфиг (только URLs) или полный дамп с состоянием. См. `DESIGN.md` для деталей.
+Unified YAML format for config and state. On startup, can accept minimal config (URLs only) or full dump with state. See `DESIGN.md` for details.
 
-## Language
+## Language Policy
 
-Документация и комментарии на русском.
+- **Documentation**: English first (`*.md`), Russian second (`*.ru.md`)
+- **Code comments**: English only
+- **When updating docs**: Always update both English and Russian versions
