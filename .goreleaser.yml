@@ -1,0 +1,123 @@
+# GoReleaser configuration for proxyma
+# https://goreleaser.com
+
+version: 2
+
+before:
+  hooks:
+    # Ensure dependencies are up to date
+    - go mod tidy
+
+builds:
+  - id: proxyma
+    main: ./cmd/proxyma
+    binary: proxyma
+
+    env:
+      # Disable CGO for static binaries and macOS compatibility
+      - CGO_ENABLED=0
+
+    ldflags:
+      # Embed version from git tag
+      - -s -w -X main.version={{.Version}}
+
+    goos:
+      - linux
+      - darwin
+      - windows
+
+    goarch:
+      - amd64
+      - arm64
+
+    # Skip unsupported combinations
+    ignore:
+      - goos: windows
+        goarch: arm64
+
+archives:
+  - id: default
+    files:
+      - README.md
+
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- .Os }}_
+      {{- .Arch }}
+
+checksum:
+  name_template: 'checksums.txt'
+  algorithm: sha256
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - '^docs(\(.+\))?:'
+      - '^test(\(.+\))?:'
+      - '^chore(\(.+\))?:'
+      - '^refactor(\(.+\))?:'
+      - '(?i)typo'
+  groups:
+    - title: 'New Features'
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: 'Bug Fixes'
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: 'Performance Improvements'
+      regexp: '^.*?perf(\([[:word:]]+\))??!?:.+$'
+      order: 2
+    - title: 'Documentation Updates'
+      regexp: '^.*?docs(\([[:word:]]+\))??!?:.+$'
+      order: 3
+    - title: 'Other Changes'
+      order: 999
+
+release:
+  github:
+    owner: dapi
+    name: proxyma
+
+  # Generate release notes from CHANGELOG.md
+  prerelease: auto
+
+  # Keep latest releases
+  mode: append
+
+  # Release notes footer
+  footer: |
+    ## Installation
+
+    ### Docker
+    ```bash
+    docker run -p 8089:8089 -v ./config.yaml:/config.yaml ghcr.io/dapi/proxyma
+    ```
+
+    ### macOS (Apple Silicon)
+    ```bash
+    curl -L https://github.com/dapi/proxyma/releases/download/{{ .Tag }}/proxyma_{{ .Version }}_darwin_arm64.tar.gz | tar xz
+    sudo mv proxyma /usr/local/bin/
+    ```
+
+    ### macOS (Intel)
+    ```bash
+    curl -L https://github.com/dapi/proxyma/releases/download/{{ .Tag }}/proxyma_{{ .Version }}_darwin_amd64.tar.gz | tar xz
+    sudo mv proxyma /usr/local/bin/
+    ```
+
+    ### Linux (amd64)
+    ```bash
+    curl -L https://github.com/dapi/proxyma/releases/download/{{ .Tag }}/proxyma_{{ .Version }}_linux_amd64.tar.gz | tar xz
+    sudo mv proxyma /usr/local/bin/
+    ```
+
+    ### Windows
+    Download `proxyma_{{ .Version }}_windows_amd64.zip` from the assets below and add to PATH.
+
+    **Full Changelog**: https://github.com/dapi/proxyma/compare/{{ .PreviousTag }}...{{ .Tag }}
