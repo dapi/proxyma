@@ -76,3 +76,4 @@ Unified YAML format for config and state. On startup, can accept minimal config 
 - **Documentation**: English first (`*.md`), Russian second (`*.ru.md`)
 - **Code comments**: English only
 - **When updating docs**: Always update both English and Russian versions
+- **Cross-links**: English docs must include link to Russian version (e.g., `🇷🇺 **[FILE.ru.md](FILE.ru.md)**`)
